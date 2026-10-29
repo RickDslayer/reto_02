@@ -12,6 +12,108 @@ La misma especificación del reto 2, ahora repartida en clases con una responsab
 | `Clasificacion` | `enum` con APROBADA, REVISIÓN MANUAL y RECHAZADA. |
 | `EstadisticasCreditos` | Contadores de evaluadas y de cada categoría, y el resumen final. |
 
+## Diagrama UML
+
+```mermaid
+classDiagram
+    direction TB
+
+    class S03Reto02CreditosPOO {
+        +main(String[] args)$ void
+    }
+
+    class LectorConsola {
+        -Scanner scanner
+        +LectorConsola(Scanner scanner)
+        +leerEnRango(String etiqueta, long min, long max) long
+        +leerSolicitud() SolicitudCredito
+    }
+
+    class EvaluadorCredito {
+        -long EDAD_MINIMA = 18$
+        -long EDAD_MAXIMA = 70$
+        -long LIMITE_APROBACION = 35$
+        -long LIMITE_REVISION = 45$
+        +evaluar(SolicitudCredito solicitud) ResultadoEvaluacion
+    }
+
+    class EstadisticasCreditos {
+        -int evaluadas
+        -int aprobadas
+        -int revisionManual
+        -int rechazadas
+        +registrar(Clasificacion clasificacion) void
+        +generarResumen() String
+        +getEvaluadas() int
+        +getAprobadas() int
+        +getRevisionManual() int
+        +getRechazadas() int
+    }
+
+    class SolicitudCredito {
+        +long EDAD_MIN = 0$
+        +long EDAD_MAX = 120$
+        +long DINERO_MAX = 1000000000$
+        +long CREDITO_MIN = 1$
+        +long MESES_MIN = 1$
+        +long MESES_MAX = 360$
+        -long edad
+        -long ingresos
+        -long gastos
+        -long credito
+        -long meses
+        +SolicitudCredito(long edad, long ingresos, long gastos, long credito, long meses)
+        -validarRango(String campo, long valor, long min, long max)$ void
+        +getDisponible() long
+        +getEdad() long
+        +getIngresos() long
+        +getGastos() long
+        +getCredito() long
+        +getMeses() long
+    }
+
+    class ResultadoEvaluacion {
+        -Clasificacion clasificacion
+        -String motivo
+        -boolean calculado
+        -long disponible
+        -long cuotaAproximada
+        -double endeudamiento
+        -ResultadoEvaluacion(Clasificacion clasificacion, String motivo, boolean calculado, long disponible, long cuotaAproximada, double endeudamiento)
+        +rechazoPrevio(String motivo)$ ResultadoEvaluacion
+        +conCalculo(Clasificacion clasificacion, long disponible, long cuotaAproximada, double endeudamiento)$ ResultadoEvaluacion
+        +generarReporte() String
+        +getClasificacion() Clasificacion
+        +getMotivo() String
+        +isCalculado() boolean
+        +getDisponible() long
+        +getCuotaAproximada() long
+        +getEndeudamiento() double
+    }
+
+    class Clasificacion {
+        <<enumeration>>
+        APROBADA
+        REVISION_MANUAL
+        RECHAZADA
+        -String etiqueta
+        +getEtiqueta() String
+    }
+
+    S03Reto02CreditosPOO ..> LectorConsola : crea
+    S03Reto02CreditosPOO ..> EvaluadorCredito : crea
+    S03Reto02CreditosPOO ..> EstadisticasCreditos : crea
+    LectorConsola ..> SolicitudCredito : crea
+    EvaluadorCredito ..> SolicitudCredito : usa
+    EvaluadorCredito ..> ResultadoEvaluacion : crea
+    EstadisticasCreditos ..> Clasificacion : usa
+    ResultadoEvaluacion --> "1" Clasificacion : clasificacion
+```
+
+Notación: `+` público, `-` privado, subrayado = `static`. Flecha discontinua = dependencia (la clase
+crea o usa a la otra); flecha continua = asociación (la guarda como atributo). Todos los atributos de
+`SolicitudCredito`, `ResultadoEvaluacion`, `Clasificacion` y `LectorConsola`, y las constantes, son `final`.
+
 ## Precisión
 
 La categoría se decide con enteros exactos: `credito * 100` frente a `disponible * meses * 35` y `* 45`
